@@ -1,107 +1,48 @@
-# ✅ ПОЛНЫЙ ИСПРАВЛЕННЫЙ docker-compose.yml для HW3 (LocalExecutor)
 version: '3.8'
-
-x-airflow-common:
-  &airflow-common
-  image: apache/airflow:2.7.0
-  environment:
-    &airflow-common-env
-    AIRFLOW__CORE__EXECUTOR: LocalExecutor
-    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_master/airflow
-    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres_master/airflow
-    AIRFLOW__CORE__FERNET_KEY: ''
-    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    AIRFLOW__LOGGING__LOGGING_LEVEL: INFO
-    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
-    AIRFLOW__WEBSERVER__INSTANCE_NAME: 'HW3 Airflow'
-  volumes:
-    - ./dags:/opt/airflow/dags
-    - ./logs:/opt/airflow/logs
-  user: "${AIRFLOW_UID:-50000}:0"
-  depends_on:
-    postgres_master:
-      condition: service_healthy
 
 services:
   postgres_master:
     container_name: postgres_master
     image: postgres:16
     restart: always
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init_db:/docker-entrypoint-initdb.d:Z
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
-    command:
-      - postgres
-      - -c
-      - wal_level=logical
-      - -c
-      - max_replication_slots=10
-      - -c
-      - max_logical_replication_workers=10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init_db:/docker-entrypoint-initdb.d:Z
+    command: >
+      postgres
+      -c listen_addresses='*'
+      -c ssl=off
+      -c log_destination='stderr'
+      -c logging_collector=on
+      -c log_directory='/var/lib/postgresql/data/log'
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 5
 
-  airflow-webserver:
-    <<: *airflow-common
-    command: webserver
+  airflow-standalone:
+    image: apache/airflow:2.7.0
+    container_name: airflow-standalone
+    command: standalone
     ports:
-      - 8080:8080
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    restart: always
-    depends_on:
-      postgres_master:
-        condition: service_healthy
-      airflow-init:
-        condition: service_completed_successfully
-
-  airflow-scheduler:
-    <<: *airflow-common
-    command: scheduler
-    healthcheck:
-      test: ["CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"']
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    restart: always
-    depends_on:
-      postgres_master:
-        condition: service_healthy
-      airflow-init:
-        condition: service_completed_successfully
-
-  airflow-init:
-    <<: *airflow-common
-    entrypoint: /bin/bash
-    command:
-      - -c
-      - |
-        export PGPASSWORD=postgres
-        until pg_isready -h postgres_master -U postgres; do sleep 2; done
-        createdb -h postgres_master -U postgres airflow || true
-        psql -h postgres_master -U postgres -d postgres -c "CREATE USER airflow WITH PASSWORD 'airflow';" || true
-        psql -h postgres_master -U postgres -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE airflow TO airflow;" || true
-        exec /entrypoint airflow db init
+      - "8080:8080"
     environment:
-      <<: *airflow-common-env
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres@postgres_master/postgres
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: 'airflow'
+      _AIRFLOW_WWW_USER_PASSWORD: 'airflow'
     volumes:
-      - .:/sources
-    user: "0:0"
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+    depends_on:
+      - postgres_master
 
   grafana:
     image: grafana/grafana:latest
@@ -113,8 +54,7 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
     depends_on:
-      postgres_master:
-        condition: service_healthy
+      - postgres_master
 
 volumes:
   postgres_data:
