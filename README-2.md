@@ -15,17 +15,32 @@ git clone https://github.com/Salamashenkova/dwh3
 docker-compose up -d
 ```
 Параметры для подключения:
+```
+docker exec -it airflow-standalone airflow connections delete postgres_default
+```
+
+```
+docker exec -it airflow-standalone airflow connections add \
+  postgres_default \
+  --conn-type postgres \
+  --conn-host postgres_master \
+  --conn-schema postgres \
+  --conn-login postgres \
+  --conn-password postgres \
+  --conn-port 5432
+```
+
 Мастер
 ```
 docker exec -it postgres_master psql -U postgres
 ```
 Примеры вывода таблиц для Мастер:
 ```
-docker exec -it postgres_master psql -U postgres -d user_service_db -c "SELECT * FROM user_service_db.USERS LIMIT 3;"
+docker exec -it postgres_master psql -U postgres -d user_service_db -c "SELECT * FROM users LIMIT 3;"
 
-docker exec -it postgres_master psql -U postgres -d order_service_db -c "SELECT * FROM order_service_db.ORDERS LIMIT 3;"
+docker exec -it postgres_master psql -U postgres -d order_service_db -c "SELECT * FROM orders LIMIT 3;"
 
-docker exec -it postgres_master psql -U postgres -d logistics_service_db -c "SELECT * FROM logistics_service_db.warehouses LIMIT 5;"
+docker exec -it postgres_master psql -U postgres -d logistics_service_db -c "SELECT * FROM shipments LIMIT 3;"
 ``` 
 ## Описание DAG'ов
 
