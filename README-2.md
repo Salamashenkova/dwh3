@@ -42,7 +42,7 @@ docker exec -it postgres_master psql -U postgres -d order_service_db -c "SELECT 
 
 docker exec -it postgres_master psql -U postgres -d logistics_service_db -c "SELECT * FROM shipments LIMIT 3;"
 ```
-##Создание 2-x DAG'ов
+## Создание DAG'ов
 ```
 docker exec -it airflow tasks logs purchase_analytics_daily create_purchase_analytics_vitrina 2025-12-21
 ```
