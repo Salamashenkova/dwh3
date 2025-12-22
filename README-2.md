@@ -41,8 +41,16 @@ docker exec -it postgres_master psql -U postgres -d user_service_db -c "SELECT *
 docker exec -it postgres_master psql -U postgres -d order_service_db -c "SELECT * FROM orders LIMIT 3;"
 
 docker exec -it postgres_master psql -U postgres -d logistics_service_db -c "SELECT * FROM shipments LIMIT 3;"
-``` 
+```
+##Создание 2-x DAG'ов
+```
+docker exec -it airflow tasks logs purchase_analytics_daily create_purchase_analytics_vitrina 2025-12-21
+```
+```
+docker exec -it airflow tasks logs warehouse_delivery_daily create_warehouse_delivery_vitrina 2025-12-21
+```
 ## Описание DAG'ов
+
 
 ### purchase_analytics_daily
 Ежедневно формирует витрину аналитики закупок за предыдущий день.
