@@ -51,8 +51,8 @@ docker exec -it airflow tasks logs warehouse_delivery_daily create_warehouse_del
 ```
 ## Описание DAG'ов
 ![alt text](photo__5.jpg)
-![alt text](photo__6.jpg)
 ![alt text](photo__3.jpg)
+![alt text](photo__2.jpg)
 
 ### purchase_analytics_daily
 Ежедневно формирует витрину аналитики закупок за предыдущий день.
@@ -78,7 +78,7 @@ docker exec -it airflow tasks logs warehouse_delivery_daily create_warehouse_del
 
 ## Далее перешли в Graphana, настроили подключение к базе данных и создали два дэшборда с данным - видео с записью экрана направили в лс в телеграме.
 Примеры скринов с полученными дэшбордами см. ниже
-![alt text](photo__2.jpg)
+![alt text](photo__6.jpg)
 ![alt text](photo__7.jpg)
 ![alt text](photo__8.jpg)
 
