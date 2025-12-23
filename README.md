@@ -29,7 +29,7 @@ docker exec -it airflow-standalone airflow connections add \
   --conn-password postgres \
   --conn-port 5432
 ```
-
+![alt text](image_1.png)
 Мастер
 ```
 docker exec -it postgres_master psql -U postgres
@@ -73,3 +73,10 @@ docker exec -it airflow tasks logs warehouse_delivery_daily create_warehouse_del
 
 Результат:
 - presentation слой (аналитические витрины)
+
+## Далее перешли в Graphana, настроили подключение к базе данных и создали два дэшборда с данным - видео с записью экрана направили в лс в телеграме.
+Примеры скринов с полученными дэшбордами см. ниже
+![alt text](image.png)
+![alt text](image.png)
+
+
