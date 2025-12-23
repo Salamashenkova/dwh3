@@ -42,8 +42,6 @@ docker exec -it postgres_master psql -U postgres -d order_service_db -c "SELECT 
 
 docker exec -it postgres_master psql -U postgres -d logistics_service_db -c "SELECT * FROM shipments LIMIT 3;"
 ```
-![alt text](photo__2.jpg)
-![alt text](photo__3.jpg)
 ## Создание DAG'ов
 ```
 docker exec -it airflow tasks logs purchase_analytics_daily create_purchase_analytics_vitrina 2025-12-21
@@ -52,9 +50,9 @@ docker exec -it airflow tasks logs purchase_analytics_daily create_purchase_anal
 docker exec -it airflow tasks logs warehouse_delivery_daily create_warehouse_delivery_vitrina 2025-12-21
 ```
 ## Описание DAG'ов
-![alt text](photo__4.jpg)
 ![alt text](photo__5.jpg)
 ![alt text](photo__6.jpg)
+![alt text](photo__3.jpg)
 
 ### purchase_analytics_daily
 Ежедневно формирует витрину аналитики закупок за предыдущий день.
@@ -80,6 +78,7 @@ docker exec -it airflow tasks logs warehouse_delivery_daily create_warehouse_del
 
 ## Далее перешли в Graphana, настроили подключение к базе данных и создали два дэшборда с данным - видео с записью экрана направили в лс в телеграме.
 Примеры скринов с полученными дэшбордами см. ниже
+![alt text](photo__2.jpg)
 ![alt text](photo__7.jpg)
 ![alt text](photo__8.jpg)
 
